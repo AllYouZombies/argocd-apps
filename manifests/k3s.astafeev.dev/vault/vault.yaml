@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://helm.releases.hashicorp.com
+    chart: vault
+    targetRevision: 0.31.0
+    helm:
+      parameters:
+        # Server configuration - single node Raft
+        - name: server.ha.enabled
+          value: "true"
+        - name: server.ha.replicas
+          value: "1"
+        - name: server.ha.raft.enabled
+          value: "true"
+        - name: server.ha.raft.setNodeId
+          value: "true"
+
+        # Storage
+        - name: server.dataStorage.size
+          value: "1Gi"
+
+        # Resources
+        - name: server.resources.requests.memory
+          value: "256Mi"
+        - name: server.resources.requests.cpu
+          value: "500m"
+        - name: server.resources.limits.memory
+          value: "256Mi"
+        - name: server.resources.limits.cpu
+          value: "500m"
+
+        # UI
+        - name: ui.enabled
+          value: "true"
+
+        # Ingress
+        - name: server.ingress.enabled
+          value: "true"
+        - name: server.ingress.ingressClassName
+          value: "nginx"
+        - name: server.ingress.hosts[0].host
+          value: "vault.k3s.astafeev.dev"
+        - name: server.ingress.tls[0].secretName
+          value: "vault-tls"
+        - name: server.ingress.tls[0].hosts[0]
+          value: "vault.k3s.astafeev.dev"
+        - name: server.ingress.annotations.cert-manager\.io/cluster-issuer
+          value: "letsencrypt-prod"
+
+        # Injector
+        - name: injector.enabled
+          value: "true"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
