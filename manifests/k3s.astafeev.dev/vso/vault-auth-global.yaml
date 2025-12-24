@@ -8,6 +8,7 @@ spec:
     - "*"
   vaultConnectionRef: default
   defaultAuthMethod: kubernetes
+  defaultMount: kubernetes
   kubernetes:
     audiences:
       - vault
