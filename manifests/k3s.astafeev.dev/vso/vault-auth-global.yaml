@@ -6,7 +6,7 @@ metadata:
 spec:
   allowedNamespaces:
     - "*"
-  vaultConnectionRef: default
+  vaultConnectionRef: vault-secrets-operator/default
   defaultAuthMethod: kubernetes
   defaultMount: kubernetes
   kubernetes:
