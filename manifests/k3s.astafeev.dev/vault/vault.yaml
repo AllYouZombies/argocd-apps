@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://helm.releases.hashicorp.com
-    chart: vault
-    targetRevision: 0.31.0
+    repoURL: https://github.com/hashicorp/vault-helm
+    targetRevision: v0.31.0
+    path: .
     helm:
       parameters:
         # Server configuration - single node Raft
