@@ -1,0 +1,60 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ghost
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/AllYouZombies/ghost-k8s
+    targetRevision: HEAD
+    path: helm/charts/v1/ghost
+    helm:
+      parameters:
+        - name: image.repository
+          value: dockerhub.timeweb.cloud/ghost
+
+        - name: ingress.enabled
+          value: "true"
+        - name: ingress.className
+          value: nginx
+        - name: ingress.host
+          value: blog.astafeev.dev
+        - name: ingress.annotations.cert-manager\.io/cluster-issuer
+          value: letsencrypt-prod
+
+        - name: ingressTLS.enabled
+          value: "true"
+        - name: ingressTLS.secretName
+          value: ghost-tls
+
+        - name: mail.enabled
+          value: "true"
+        - name: mail.from
+          value: "'Rustam Astafeev' <rustam@astafeev.dev>"
+        - name: mail.options.host
+          value: smtp.mail.me.com
+        - name: mail.options.port
+          value: "587"
+        - name: mail.auth.existingSecret
+          value: ghost-mail-secret
+
+        - name: resources.limits.memory
+          value: 1Gi
+        - name: resources.limits.cpu
+          value: "1"
+        - name: resources.requests.memory
+          value: 512Mi
+        - name: resources.requests.cpu
+          value: 250m
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: ghost
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
