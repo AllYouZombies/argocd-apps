@@ -35,3 +35,12 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - SkipSchemaValidation=true
+      - RespectIgnoreDifferences=true
+
+  ignoreDifferences:
+    - group: apps
+      kind: DaemonSet
+      name: vault-secrets-operator-csi-node
+      jqPathExpressions:
+        - .spec.template.spec.securityContext
+
