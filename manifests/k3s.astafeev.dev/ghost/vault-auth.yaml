@@ -1,0 +1,11 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: vault-auth
+  namespace: ghost
+spec:
+  vaultAuthGlobalRef:
+    allowDefault: true
+  kubernetes:
+    role: ghost-role
+    serviceAccount: default
