@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vault-secrets-operator
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/hashicorp/vault-secrets-operator
+    targetRevision: v1.1.0
+    path: chart
+    helm:
+      parameters:
+        - name: controller.manager.resources.requests.memory
+          value: "128Mi"
+        - name: controller.manager.resources.requests.cpu
+          value: "100m"
+        - name: controller.manager.resources.limits.memory
+          value: "256Mi"
+        - name: controller.manager.resources.limits.cpu
+          value: "500m"
+
+        # CSI Driver
+        - name: csi.enabled
+          value: "true"
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vault-secrets-operator
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
