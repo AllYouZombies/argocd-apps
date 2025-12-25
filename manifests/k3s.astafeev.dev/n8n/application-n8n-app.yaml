@@ -28,6 +28,13 @@ spec:
 
         main:
           config:
+            n8n:
+              host: n8n.k3s.astafeev.dev
+              protocol: https
+              editor:
+                base_url: https://n8n.k3s.astafeev.dev
+            webhook:
+              url: https://n8n.k3s.astafeev.dev
             db:
               type: postgresdb
               postgresdb:
