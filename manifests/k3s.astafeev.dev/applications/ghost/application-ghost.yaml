@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: _ghost
+  name: gitops-ghost
   namespace: argocd
 spec:
   project: default
