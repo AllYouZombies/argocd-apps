@@ -1,0 +1,69 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: n8n-app
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/8gears/n8n-helm-chart
+    targetRevision: main
+    path: charts/n8n
+    helm:
+      valuesObject:
+        ingress:
+          enabled: true
+          className: nginx
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+          hosts:
+            - host: n8n.k3s.astafeev.dev
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: n8n-tls
+              hosts:
+                - n8n.k3s.astafeev.dev
+
+        main:
+          config:
+            db:
+              type: postgresdb
+              postgresdb:
+                host: n8n-rw.n8n.svc.cluster.local
+                port: 5432
+                database: n8n
+
+          extraEnv:
+            DB_POSTGRESDB_USER:
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-postgresql-credentials
+                  key: username
+            DB_POSTGRESDB_PASSWORD:
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-postgresql-credentials
+                  key: password
+            N8N_ENCRYPTION_KEY:
+              valueFrom:
+                secretKeyRef:
+                  name: n8n-encryption-key
+                  key: encryption_key
+
+          persistence:
+            enabled: true
+            type: dynamic
+            size: 1Gi
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: n8n
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
